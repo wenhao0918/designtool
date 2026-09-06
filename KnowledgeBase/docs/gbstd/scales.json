@@ -1,0 +1,9 @@
+{
+  "standard": "GB/T 14690-1993",
+  "summary": "比例。原值比例 1:1;放大优先 5:1、2:1,缩小优先 1:2、1:5、1:10;括号内为允许的非优先系列。",
+  "magnify_preferred": [2, 5],
+  "magnify_unpreferred": [2.5, 4],
+  "reduce_preferred": [2, 5, 10],
+  "reduce_unpreferred": [1.5, 2.5, 3, 4],
+  "note": "比例为图形与实物相应要素的线性尺寸之比;优先选用不带括号系列"
+}

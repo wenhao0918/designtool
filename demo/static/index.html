@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>DesignTool · 确定性求解演示</title>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --line:#334155; --fg:#e2e8f0; --acc:#38bdf8; --ok:#4ade80; --warn:#f87171; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--fg); font:14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif; display:flex; height:100vh; }
+  h1 { font-size:17px; margin-bottom:4px; } .sub { color:#94a3b8; font-size:12px; margin-bottom:14px; }
+  aside { width:300px; min-width:300px; background:var(--panel); border-right:1px solid var(--line); padding:18px 16px; overflow:auto; }
+  main { flex:1; display:flex; flex-direction:column; }
+  #tabs { display:flex; border-bottom:1px solid var(--line); background:var(--panel); }
+  #tabs button { background:none; border:none; color:#94a3b8; padding:10px 18px; cursor:pointer; font-size:14px; border-bottom:2px solid transparent; }
+  #tabs button.on { color:var(--acc); border-bottom-color:var(--acc); }
+  .view { flex:1; overflow:auto; padding:16px 20px; display:none; } .view.on { display:block; }
+  #view3d { padding:0; }
+  label { display:block; margin:10px 0 4px; color:#94a3b8; font-size:12px; }
+  input[type=number] { width:100%; padding:6px 8px; background:#0f172a; border:1px solid var(--line); border-radius:6px; color:var(--fg); }
+  .chk { display:flex; align-items:center; gap:8px; margin-top:12px; color:var(--fg); }
+  #solveBtn { width:100%; margin-top:16px; padding:10px; background:var(--acc); color:#0f172a; border:none; border-radius:8px; font-weight:700; cursor:pointer; }
+  table { border-collapse:collapse; width:100%; margin:10px 0; font-size:13px; }
+  th,td { border:1px solid var(--line); padding:6px 10px; text-align:left; }
+  th { background:#0f172a; color:#94a3b8; }
+  .ok { color:var(--ok); font-weight:700; } .bad { color:var(--warn); font-weight:700; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+  .card h3 { font-size:14px; color:var(--acc); margin-bottom:8px; }
+  .banner { background:linear-gradient(90deg,#0ea5e933,#0ea5e90d); border:1px solid #0ea5e955; border-radius:10px; padding:10px 14px; margin-bottom:14px; font-size:13px; }
+  pre { background:#0f172a; border:1px solid var(--line); border-radius:8px; padding:10px; overflow:auto; font-size:12px; }
+</style>
+</head>
+<body>
+<aside>
+  <h1>DesignTool 演示</h1>
+  <div class="sub">确定性求解 · 申请号 2026113717477 方法微型实现</div>
+  <label>示例</label>
+  <select id="preset" style="width:100%;padding:6px;background:#0f172a;color:var(--fg);border:1px solid var(--line);border-radius:6px">
+    <option value="ball_base">实施例 1 · 空心球 + 底座</option>
+    <option value="bearing">实施例 2 · 轴承座(术语块 + 意图漂移)</option>
+  </select>
+  <div id="params"></div>
+  <div class="chk" id="ribRow" style="display:none"><input type="checkbox" id="rib"> <span>追加增量:筋板横跨全宽(触发意图漂移)</span></div>
+  <button id="solveBtn">求 解</button>
+  <div class="sub" style="margin-top:14px">同一输入 → 位级一致输出。<br>无 LLM · 无随机 · 每步可验算。</div>
+</aside>
+<main>
+  <div id="tabs">
+    <button data-v="view3d" class="on">3D 预览</button>
+    <button data-v="ledger">落账 Q</button>
+    <button data-v="system">约束系统</button>
+    <button data-v="verdict">判定 · 验算 · 漂移</button>
+  </div>
+  <div id="view3d" class="view on"></div>
+  <div id="ledger" class="view"><div class="banner">ΔQ 原子落账:条目携带<strong>行号(指称,永不复用) · 权威属性 strong · 来源</strong>;任一运算失败整体拒绝。</div><div id="ledgerBody"></div></div>
+  <div id="system" class="view"><div class="banner">关系条目经装配模板生成<strong>稀疏约束方程</strong>(系数矩阵 × 位姿自由度 = 右端),求解后做适定性诊断。</div><div id="systemBody"></div></div>
+  <div id="verdict" class="view"><div class="banner">强约束<strong>二值判定</strong>:仅输出「已证明遵守 / 已证明不可达」,均附验算凭据;体积用与求解<strong>异源</strong>路径复算。</div><div id="verdictBody"></div></div>
+</main>
+<script>
+const FIELDS = {
+  ball_base: [["r",50,"外球半径 r (mm)"],["t",20,"壁厚 t (mm)"],["w",100,"底板宽 w"],["l",100,"底板长 l"],["h",20,"底板厚 h"]],
+  bearing:   [["w",160,"底板宽 w"],["l",90,"底板长 l"],["h",12,"底板厚 h"],["od",50,"圆筒外径"],["id_",30,"圆筒内径"],["cyl_h",50,"圆筒高"],["d",9,"安装孔径 d"]],
+};
+const $ = id => document.getElementById(id);
+function buildForm(){
+  const p = $("preset").value;
+  $("params").innerHTML = FIELDS[p].map(([k,v,l]) => `<label>${l}</label><input type="number" id="pk_${k}" value="${v}" step="any">`).join("");
+  $("ribRow").style.display = p === "bearing" ? "flex" : "none";
+}
+$("preset").onchange = buildForm; buildForm();
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#tabs button,.view").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); $(b.dataset.v).classList.add("on");
+});
+$("solveBtn").onclick = async () => {
+  const preset = $("preset").value, params = {};
+  FIELDS[preset].forEach(([k]) => params[k] = parseFloat($("pk_" + k).value));
+  if (preset === "bearing") params.rib = $("rib").checked;
+  const r = await fetch("/api/solve", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({preset, params})}).then(x => x.json());
+  if (!r.ok) { $("ledgerBody").innerHTML = `<div class="card"><h3>ΔQ 整体拒绝(原子事务)</h3>${r.errors.map(e => `<div class="bad">${e}</div>`).join("")}</div>`; document.querySelectorAll("#tabs button")[1].click(); return; }
+  $("ledgerBody").innerHTML = `<table><tr><th>行号</th><th>id</th><th>类型</th><th>权威</th><th>来源</th><th>内容</th></tr>` +
+    r.ledger.map(x => `<tr><td>${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td style="font-size:12px">${x[5]}</td></tr>`).join("") + `</table>`;
+  let sys = "";
+  if (r.system) sys = `<div class="card"><h3>约束方程(实施例1)</h3><table><tr><th>自由度</th>${r.system.dofs.map(d=>`<th>${d}</th>`).join("")}<th>右端</th></tr>` +
+      r.system.matrix.map((row,i)=>`<tr><td>行${i+1}</td>${row.map(v=>`<td>${v}</td>`).join("")}<td>${r.system.rhs[i]}</td></tr>`).join("") + `</table>` +
+      `<div>适定性:<strong>${r.system.diagnosis}</strong>;解:${JSON.stringify(r.system.solution)}</div></div>`;
+  let vd = `<div class="card"><h3>强约束二值判定</h3><table><tr><th>约束</th><th>结论</th><th>验算凭据</th></tr>` +
+    r.verdicts.map(v=>`<tr><td>${v.constraint}</td><td class="ok">${v.verdict}</td><td style="font-size:12px">${v.evidence}</td></tr>`).join("") + `</table></div>`;
+  if (r.drift) vd += `<div class="card"><h3>意图漂移检测(零空间投影)</h3><table>
+      <tr><td>保护方向</td><td>${r.drift["保护方向"]}</td></tr>
+      <tr><td>投影范数</td><td>${r.drift["零空间投影范数"]} (阈值 ${r.drift["阈值"]})</td></tr>
+      <tr><td>判定</td><td class="${r.drift["判定"].includes("漂移")?"bad":"ok"}">${r.drift["判定"]}</td></tr></table>` +
+      (r.drift["事件"] ? `<div class="sub" style="margin-top:8px">意图丢失事件:肇因 ${r.drift["事件"]["肇因"]};候选修复:${r.drift["事件"]["候选修复"].map(c=>`${c["方案"]}(置信度 ${c["置信度"]})`).join(" / ")}。${r.drift["事件"]["说明"]}</div>` : "") + `</div>`;
+  vd += `<div class="card"><h3>体积验算(异源)</h3><table>` + Object.entries(r.verify).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join("") + `</table></div>`;
+  if (r.shape) vd += `<div class="card"><h3>形状演算</h3>${Object.entries(r.shape).map(([k,v])=>`${k}: ${v}`).join(" · ")}</div>`;
+  $("systemBody").innerHTML = sys || `<div class="sub">实施例2 的装配/漂移数学见「判定」页与求解器源码。</div>`;
+  $("verdictBody").innerHTML = vd;
+  draw(r.geometry, preset);
+};
+/* ---------- three.js 极简渲染(自实现拖转/缩放) ---------- */
+let renderer, scene, camera, group;
+function init3d(){
+  const el = $("view3d");
+  renderer = new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(el.clientWidth, el.clientHeight); el.appendChild(renderer.domElement);
+  scene = new THREE.Scene(); scene.background = new THREE.Color(0x0f172a);
+  camera = new THREE.PerspectiveCamera(45, el.clientWidth/el.clientHeight, 1, 5000);
+  scene.add(new THREE.AmbientLight(0xffffff,.5));
+  const dl = new THREE.DirectionalLight(0xffffff,.9); dl.position.set(200,400,300); scene.add(dl);
+  const grid = new THREE.GridHelper(600,30,0x334155,0x1e293b); grid.rotation.x = Math.PI/2; scene.add(grid);
+  group = new THREE.Group(); scene.add(group);
+  let drag=false, px=0, py=0;
+  el.onmousedown = e=>{drag=true;px=e.clientX;py=e.clientY;};
+  onmouseup = ()=>drag=false;
+  onmousemove = e=>{ if(!drag)return; group.rotation.y += (e.clientX-px)*.01; group.rotation.x += (e.clientY-py)*.01; px=e.clientX; py=e.clientY; };
+  el.onwheel = e=>{ e.preventDefault(); camera.position.multiplyScalar(e.deltaY>0?1.08:0.93); };
+  onresize = ()=>{ camera.aspect = el.clientWidth/el.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(el.clientWidth, el.clientHeight); };
+  (function loop(){ requestAnimationFrame(loop); renderer.render(scene,camera); })();
+}
+function fit(pos){ // 以 mm 为单位的世界: y 上
+  const c = pos.clone(); camera.position.set(c.x*2.2, c.y*2.2, c.z*2.2); camera.lookAt(c);
+}
+function draw(g, preset){
+  while(group.children.length) group.remove(group.children[0]);
+  const mat = (c,o)=>new THREE.MeshPhongMaterial({color:c, transparent:o<1, opacity:o});
+  const box = (w,h,l,x,y,z,c,o=1)=>{ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,l), mat(c,o)); m.position.set(x,y,z); group.add(m); };
+  const cyl = (r,h,x,y,z,c,o=1,axis='y')=>{ const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,48), mat(c,o));
+    if(axis==='z') m.rotation.x = Math.PI/2; m.position.set(x,y,z); group.add(m); };
+  const sphere = (r,x,y,z,c,o)=>{ const m = new THREE.Mesh(new THREE.SphereGeometry(r,48,32), mat(c,o)); m.position.set(x,y,z); group.add(m); };
+  if (preset === "ball_base"){
+    box(g.base.w, g.base.h, g.base.l, g.base.w/2, g.base.h/2, g.base.l/2, 0x94a3b8);
+    sphere(g.ball.r, g.ball.cx, g.ball.cz, g.ball.cy, 0x38bdf8, .30);
+    sphere(g.inner.r, g.inner.cx, g.inner.cz, g.inner.cy, 0xf87171, .35);
+    fit(new THREE.Vector3(g.base.w/2, g.ball.r/2, g.base.l/2));
+  } else {
+    box(g.base.w, g.base.h, g.base.l, g.base.w/2, g.base.h/2, g.base.l/2, 0x94a3b8);
+    cyl(g.tube.od/2, g.tube.cyl_h, g.tube.cx, g.base.h+g.tube.cyl_h/2, g.tube.cy, 0x38bdf8, .35);
+    cyl(g.tube.id_/2, g.tube.cyl_h+2, g.tube.cx, g.base.h+g.tube.cyl_h/2, g.tube.cy, 0x0f172a, 1);
+    g.holes.forEach(h0=>cyl(h0.d/2, g.base.h+2, h0.x, g.base.h/2, h0.y, 0x0f172a, 1));
+    if (g.rib) box(8, g.tube.od*.9, g.base.l, g.base.w/2, g.base.h+g.tube.od*.45, g.base.l/2, 0xf87171, .85);
+    fit(new THREE.Vector3(g.base.w/2, g.base.h+20, g.base.l/2));
+  }
+}
+init3d(); $("solveBtn").click();
+</script>
+</body>
+</html>

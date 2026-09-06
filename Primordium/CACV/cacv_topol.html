@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CACV 引擎 · 拓扑结构</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0f19;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 30px 20px;
+        }
+
+        /* 架构图卡片（截图目标） */
+        #chartContainer {
+            background: linear-gradient(145deg, #111827, #0f172a);
+            border-radius: 48px;
+            padding: 40px 50px 50px 50px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        /* 标题区 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 35px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 15px;
+        }
+
+        .title-group h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: 1.5px;
+        }
+
+        .title-group .sub {
+            font-size: 14px;
+            color: #94a3b8;
+            letter-spacing: 3px;
+            margin-top: 4px;
+            font-weight: 300;
+        }
+
+        .badge {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 6px 16px;
+            border-radius: 100px;
+            color: #38bdf8;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* 架构图主体 */
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        /* 通用层级卡片 */
+        .layer {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .layer-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .layer-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #e2e8f0;
+            letter-spacing: 0.3px;
+        }
+
+        .layer-title .tag {
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #94a3b8;
+            padding: 1px 10px;
+            border-radius: 100px;
+            margin-left: 10px;
+            font-weight: 400;
+        }
+
+        .layer-desc {
+            margin-left: auto;
+            font-size: 12px;
+            color: #64748b;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .layer-body {
+            padding: 14px 24px 20px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .component-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .comp {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 14px;
+            padding: 12px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            flex: 1 0 auto;
+            min-width: 130px;
+            box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        }
+
+        .comp .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comp .label .tag {
+            font-size: 10px;
+            background: #38bdf8;
+            color: #0f172a;
+            padding: 1px 10px;
+            border-radius: 100px;
+            font-weight: 700;
+        }
+
+        .comp .label .tag.gold {
+            background: #fbbf24;
+            color: #0f172a;
+        }
+
+        .comp .label .tag.purple {
+            background: #a78bfa;
+            color: #0f172a;
+        }
+
+        .comp .label .tag.green {
+            background: #34d399;
+            color: #0f172a;
+        }
+
+        .comp .label .tag.red {
+            background: #f87171;
+            color: #0f172a;
+        }
+
+        .comp .desc {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 5px;
+            font-weight: 300;
+            letter-spacing: 0.2px;
+            line-height: 1.4;
+        }
+
+        /* 颜色主题 */
+        .layer-top .layer-header {
+            border-left: 4px solid #38bdf8;
+        }
+        .layer-top .comp {
+            border-left: 3px solid #38bdf8;
+        }
+
+        .layer-mid1 .layer-header {
+            border-left: 4px solid #34d399;
+        }
+        .layer-mid1 .comp {
+            border-left: 3px solid #34d399;
+        }
+
+        .layer-core .layer-header {
+            border-left: 4px solid #fbbf24;
+        }
+        .layer-core .comp {
+            border-left: 3px solid #fbbf24;
+            background: rgba(251, 191, 36, 0.06);
+        }
+
+        .layer-update .layer-header {
+            border-left: 4px solid #a78bfa;
+        }
+        .layer-update .comp {
+            border-left: 3px solid #a78bfa;
+        }
+
+        .layer-bottom .layer-header {
+            border-left: 4px solid #f87171;
+        }
+        .layer-bottom .comp {
+            border-left: 3px solid #f87171;
+        }
+
+        .arrow-connector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 18px;
+            color: #475569;
+            font-size: 16px;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 6px;
+        }
+        .arrow-connector span {
+            background: #1e293b;
+            padding: 0 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        /* 底部标注 */
+        .footnote {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #475569;
+            letter-spacing: 0.8px;
+            font-weight: 300;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 18px;
+        }
+
+        /* 按钮区域（在截图容器外部） */
+        .action-wrapper {
+            margin-top: 28px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-download {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 14px 44px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 16px -6px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-download:hover {
+            background: linear-gradient(145deg, #334155, #1e293b);
+            border-color: #475569;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+        }
+
+        .btn-download:active {
+            transform: translateY(2px);
+        }
+
+        .btn-download svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @media (max-width: 750px) {
+            #chartContainer {
+                padding: 20px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .layer-body {
+                padding: 12px;
+            }
+            .comp {
+                min-width: 100%;
+            }
+            .layer-desc {
+                display: none;
+            }
+            .title-group h1 {
+                font-size: 20px;
+            }
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0.5in;
+            }
+            #chartContainer {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+                padding: 30px;
+            }
+            .action-wrapper {
+                display: none;
+            }
+            .btn-download {
+                display: none;
+            }
+            .comp {
+                box-shadow: none;
+            }
+            .layer {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 架构图容器（截图目标，不包含按钮） -->
+    <div id="chartContainer">
+        <div class="header">
+            <div class="title-group">
+                <h1>⚙️ CACV 引擎 · 拓扑结构</h1>
+                <div class="sub">CONSTRAINT · ALGORITHM · COMPUTATION · VARIATIONAL</div>
+            </div>
+            <div class="badge">v1.0 · 架构定稿</div>
+        </div>
+
+        <div class="architecture">
+            <!-- 第1层：用户输入 -->
+            <div class="layer layer-top">
+                <div class="layer-header">
+                    <span class="layer-icon">📐</span>
+                    <span class="layer-title">用户输入层 <span class="tag">设计意图</span></span>
+                    <span class="layer-desc">载荷 · 材料 · 制造约束 · 价值偏好</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>📦</span> 载荷定义 <span class="tag">F</span></div>
+                            <div class="desc">力、热、压力等边界条件</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🧱</span> 材料属性 <span class="tag">E, ν</span></div>
+                            <div class="desc">杨氏模量、泊松比、密度</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🔗</span> 制造约束 <span class="tag">ℳ</span></div>
+                            <div class="desc">壁厚、体积分数、工艺极限</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🎯</span> 价值偏好 <span class="tag">𝒱</span></div>
+                            <div class="desc">重量、成本、寿命优先级</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector"><span>▼ 结构化转译 ▼</span></div>
+
+            <!-- 第2层：约束形式化 -->
+            <div class="layer layer-mid1">
+                <div class="layer-header">
+                    <span class="layer-icon">📝</span>
+                    <span class="layer-title">约束形式化层 <span class="tag">结构化描述</span></span>
+                    <span class="layer-desc">设计意图 → 𝒫, ℳ, 𝒱</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>⚡</span> 物理场 𝒫 <span class="tag">等式</span></div>
+                            <div class="desc">守恒律 · 连续介质力学</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🛠️</span> 制造场 ℳ <span class="tag">不等式</span></div>
+                            <div class="desc">工艺可达性 · 几何边界</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>📊</span> 价值场 𝒱 <span class="tag">偏序</span></div>
+                            <div class="desc">多目标优化偏好</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector"><span>▼ 泛函组装 ▼</span></div>
+
+            <!-- 第3层：约束势组装 -->
+            <div class="layer layer-mid1">
+                <div class="layer-header">
+                    <span class="layer-icon">🧩</span>
+                    <span class="layer-title">约束势 Φ 组装器 <span class="tag">CPU 主控</span></span>
+                    <span class="layer-desc">Φ = Φₚ + Φₘ + Φᵥ</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>📈</span> 泛函构建 <span class="tag">变分</span></div>
+                            <div class="desc">将约束转化为可计算的泛函形式</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🔢</span> 离散化 <span class="tag">FEM</span></div>
+                            <div class="desc">连续泛函 → 稀疏矩阵 [K]</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector"><span>▼ 数值求解（计算密集区）▼</span></div>
+
+            <!-- 第4层：数值求解（核心） -->
+            <div class="layer layer-core">
+                <div class="layer-header">
+                    <span class="layer-icon">🔥</span>
+                    <span class="layer-title">数值求解层 <span class="tag">∇Φ(𝕄) = 0</span></span>
+                    <span class="layer-desc">⚡ 必须用 NPU 加速</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp" style="flex:2;">
+                            <div class="label"><span>🌀</span> CG 迭代器 <span class="tag gold">C++ / CANN</span></div>
+                            <div class="desc">求解 [K]{u} = {F} · 共轭梯度法 · 每次迭代含 SpMV + 向量点积</div>
+                        </div>
+                        <div class="comp" style="flex:2;">
+                            <div class="label"><span>🧮</span> NPU 计算后端 <span class="tag gold">910B</span></div>
+                            <div class="desc">大规模矩阵乘法 · 稀疏矩阵向量乘 · 范数计算</div>
+                        </div>
+                    </div>
+                    <div style="width:100%; margin-top: 4px; padding: 6px 14px; background: rgba(251,191,36,0.08); border-radius: 10px; border: 1px dashed rgba(251,191,36,0.3);">
+                        <span style="color: #fbbf24; font-size: 13px; font-weight: 500;">⬆ 核心计算密集区 · 所有大规模矩阵运算由此层承接</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector"><span>▼ 灵敏度分析 ▼</span></div>
+
+            <!-- 第5层：拓扑更新 -->
+            <div class="layer layer-update">
+                <div class="layer-header">
+                    <span class="layer-icon">🔄</span>
+                    <span class="layer-title">拓扑更新层 <span class="tag">OC / MMA</span></span>
+                    <span class="layer-desc">CPU + NPU 混合</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>📉</span> 灵敏度计算 <span class="tag purple">NPU</span></div>
+                            <div class="desc">dC/dρ · 伴随法</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>✂️</span> 密度场更新 <span class="tag purple">CPU</span></div>
+                            <div class="desc">OC / MMA 准则</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🧱</span> 硬截断 ℳ <span class="tag purple">CPU</span></div>
+                            <div class="desc">体积分数 · 最小壁厚</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector"><span>▼ 结果输出 ▼</span></div>
+
+            <!-- 第6层：输出 -->
+            <div class="layer layer-bottom">
+                <div class="layer-header">
+                    <span class="layer-icon">📤</span>
+                    <span class="layer-title">输出层 <span class="tag">稳态拓扑</span></span>
+                    <span class="layer-desc">𝕄 = (𝕋, 𝔾, ℬ, ℱ)</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>📊</span> 密度场 <span class="tag red">输出</span></div>
+                            <div class="desc">材料分布 · 拓扑构型</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>📈</span> 收敛曲线 <span class="tag red">输出</span></div>
+                            <div class="desc">残差 · 柔度迭代历史</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>✅</span> 约束报告 <span class="tag red">输出</span></div>
+                            <div class="desc">𝒫 ∩ ℳ 满足性 · 约束裕量</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部标注 -->
+        <div class="footnote">
+            CACV · 约束-算法-计算-变分引擎 | 拓扑结构 v1.0
+        </div>
+    </div>
+
+    <!-- 下载按钮（在截图容器外部） -->
+    <div class="action-wrapper">
+        <button class="btn-download" id="downloadBtn">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            下载高清架构图 (PNG)
+        </button>
+    </div>
+
+    <script>
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const container = document.getElementById('chartContainer');
+            html2canvas(container, {
+                scale: 2.5,
+                backgroundColor: '#0b0f19',
+                allowTaint: false,
+                useCORS: true,
+                logging: false,
+                windowHeight: container.scrollHeight,
+                windowWidth: container.scrollWidth
+            }).then((canvas) => {
+                const link = document.createElement('a');
+                link.download = 'CACV_拓扑结构.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(() => {
+                alert('下载失败，但您可以直接右键保存图片。');
+            });
+        });
+    </script>
+
+</body>
+</html>

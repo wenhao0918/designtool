@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KnowledgeBase 架构图</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: white;
+      min-height: 100vh;
+      padding: 2rem;
+      color: #1f2937;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      margin-bottom: 2rem;
+    }
+    
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: #8b5cf6;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .architecture-diagram {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .service-box {
+      position: relative;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: #fafafa;
+    }
+    
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .service-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    
+    .service-port {
+      font-size: 14px;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
+    
+    .domains {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .domain-card {
+      background: #f0f9ff;
+      border: 1px solid #7dd3fc;
+      border-radius: 8px;
+      padding: 1rem;
+      position: relative;
+    }
+    
+    .domain-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .domain-icon {
+      width: 24px;
+      height: 24px;
+      background: #3b82f6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    
+    .domain-title {
+      font-weight: 600;
+      color: #1e40af;
+    }
+    
+    .domain-desc {
+      font-size: 13px;
+      color: #3730a3;
+      margin-bottom: 0.5rem;
+    }
+    
+    .domain-status {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    .status-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .status-planned {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .backends {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .backends-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.75rem;
+    }
+    
+    .backend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    
+    .backend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+    }
+    
+    .backend-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+    }
+    
+    .backend-local {
+      background: #10b981;
+    }
+    
+    .backend-ragflow {
+      background: #3b82f6;
+    }
+    
+    .backend-proxy {
+      background: #8b5cf6;
+    }
+    
+    .backend-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1f2937;
+    }
+    
+    .tools-section {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .tools-title {
+      font-weight: 600;
+      color: #166534;
+      margin-bottom: 0.75rem;
+    }
+    
+    .tool-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .tool-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      border: 1px solid #d1fae5;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+    }
+    
+    .tool-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      color: #166534;
+      font-size: 13px;
+    }
+    
+    .tool-desc {
+      font-size: 12px;
+      color: #22c55e;
+    }
+    
+    .consumer-box {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    
+    .consumer-title {
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 0.5rem;
+    }
+    
+    .consumer-list {
+      font-size: 13px;
+      color: #78350f;
+    }
+    
+    .consumer-item {
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .consumer-icon {
+      width: 8px;
+      height: 8px;
+      background: #f59e0b;
+      border-radius: 50%;
+    }
+    
+    .feature-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .feature-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    
+    .feature-list {
+      font-size: 13px;
+      color: #475569;
+    }
+    
+    .feature-item {
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .feature-bullet {
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="architecture-diagram">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1 class="service-title">KnowledgeBase 架构</h1>
+      </div>
+      
+      <div class="service-box">
+        <div class="service-header">
+          <div class="service-title">KnowledgeBase</div>
+          <div class="service-port">8101</div>
+          <div class="service-port">tmux "kbservice"</div>
+        </div>
+        
+        <div class="domains">
+          <div class="domain-card">
+            <div class="domain-header">
+              <div class="domain-icon">G</div>
+              <div class="domain-title">gbstd</div>
+              <div class="domain-status status-active">active</div>
+            </div>
+            <div class="domain-desc">国标知识库 - 统一外壳设计</div>
+          </div>
+          
+          <div class="domain-card">
+            <div class="domain-header">
+              <div class="domain-icon">M</div>
+              <div class="domain-title">mechterms</div>
+              <div class="domain-status status-active">active</div>
+            </div>
+            <div class="domain-desc">机械术语 - 代理 Anvil</div>
+          </div>
+          
+          <div class="domain-card">
+            <div class="domain-header">
+              <div class="domain-icon">P</div>
+              <div class="domain-title">parts</div>
+              <div class="domain-status status-planned">planned</div>
+            </div>
+            <div class="domain-desc">标准件库 - 国标画法选用</div>
+          </div>
+          
+          <div class="domain-card">
+            <div class="domain-header">
+              <div class="domain-icon">M</div>
+              <div class="domain-title">materials</div>
+              <div class="domain-status status-active">active</div>
+            </div>
+            <div class="domain-desc">材料库 - 代理 Anvil</div>
+          </div>
+        </div>
+        
+        <div class="backends">
+          <div class="backends-title">多后端策略模式</div>
+          <div class="backend-grid">
+            <div class="backend-item">
+              <div class="backend-icon backend-local"></div>
+              <div class="backend-name">LocalJSON</div>
+            </div>
+            <div class="backend-item">
+              <div class="backend-icon backend-ragflow"></div>
+              <div class="backend-name">RAGFlow</div>
+            </div>
+            <div class="backend-item">
+              <div class="backend-icon backend-proxy"></div>
+              <div class="backend-name">RAGFlowGraph</div>
+            </div>
+            <div class="backend-item">
+              <div class="backend-icon backend-proxy"></div>
+              <div class="backend-name">AnvilTermsProxy</div>
+            </div>
+            <div class="backend-item">
+              <div class="backend-icon backend-proxy"></div>
+              <div class="backend-name">MaterialProxy</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tools-section">
+          <div class="tools-title">HTTP + MCP 统一工具</div>
+          <div class="tool-list">
+            <div class="tool-item">
+              <div class="tool-name">status</div>
+              <div class="tool-desc">后端状态检查</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">search</div>
+              <div class="tool-desc">多后端联合检索</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">ask</div>
+              <div class="tool-desc">智能问答</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">graph</div>
+              <div class="tool-desc">图谱遍历</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="consumer-box">
+          <div class="consumer-title">消费方</div>
+          <div class="consumer-list">
+            <div class="consumer-item">
+              <div class="consumer-icon"></div>
+              <div>Anvil(8105) - 国标条款查询</div>
+            </div>
+            <div class="consumer-item">
+              <div class="consumer-icon"></div>
+              <div>DraftEngine(8100) - 标准知识获取</div>
+            </div>
+            <div class="consumer-item">
+              <div class="consumer-icon"></div>
+              <div>PrimitiveService(8103) - 材料属性查询</div>
+            </div>
+            <div class="consumer-item">
+              <div class="consumer-icon"></div>
+              <div>前端 Admin - 数据导入界面</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="feature-title">特性说明</div>
+          <div class="feature-list">
+            <div class="feature-item">
+              <span class="feature-bullet">•</span>
+              <span>联邦架构: 本地数据 + RAGFlow 数据源 + 代理服务</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-bullet">•</span>
+              <span>分类路由: 每个域指定专用后端(service参数)</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-bullet">•</select>
+              <span>智能路由: 按域声明的service分发查询</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-bullet">•</span>
+              <span>自动降级: 后端异常时切换到备用后端</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-bullet">•</span>
+              <span>标准化API: 统一的search/ask接口支持多后端</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

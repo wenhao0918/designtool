@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primordium · CARV 分层异构架构</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f7fb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 30px 20px;
+        }
+
+        /* 架构图卡片（截图目标）—— 纯白背景 */
+        #chartContainer {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px 50px 50px 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e8ecf0;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* 标题区 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #eef1f4;
+            padding-bottom: 16px;
+        }
+
+        .title-group h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: 1.5px;
+        }
+
+        .title-group .sub {
+            font-size: 13px;
+            color: #6b7280;
+            letter-spacing: 3px;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .badge {
+            background: #eef2ff;
+            border: 1px solid #d5dce6;
+            padding: 5px 16px;
+            border-radius: 100px;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* 架构图主体 */
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            padding: 6px 0;
+        }
+
+        /* 通用层级卡片 */
+        .layer {
+            background: #fafbfc;
+            border-radius: 20px;
+            border: 1px solid #e5e9ed;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            background: #f2f4f7;
+            border-bottom: 1px solid #e5e9ed;
+        }
+
+        .layer-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            opacity: 0.9;
+        }
+
+        .layer-title {
+            font-weight: 600;
+            font-size: 17px;
+            color: #1a1a2e;
+            letter-spacing: 0.3px;
+        }
+
+        .layer-title small {
+            font-weight: 400;
+            font-size: 13px;
+            color: #6b7280;
+            margin-left: 10px;
+            background: #eef1f4;
+            padding: 2px 12px;
+            border-radius: 100px;
+        }
+
+        .layer-desc {
+            margin-left: auto;
+            font-size: 12px;
+            color: #6b7280;
+            background: #eef1f4;
+            padding: 4px 14px;
+            border-radius: 100px;
+            border: 1px solid #e5e9ed;
+        }
+
+        .layer-body {
+            padding: 18px 24px 24px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .component-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .comp {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 14px 20px;
+            border: 1px solid #e5e9ed;
+            flex: 1 0 auto;
+            min-width: 150px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+        }
+
+        .comp .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comp .label .tag {
+            font-size: 10px;
+            background: #eef2ff;
+            color: #374151;
+            padding: 1px 10px;
+            border-radius: 100px;
+            font-weight: 600;
+            border: 1px solid #d5dce6;
+        }
+
+        .comp .desc {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            line-height: 1.4;
+        }
+
+        /* 颜色主题——浅色版，仅用左侧边框区分 */
+        .layer-top .layer-header {
+            border-left: 4px solid #3b82f6;
+        }
+        .layer-top .comp {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .layer-mid .layer-header {
+            border-left: 4px solid #f59e0b;
+        }
+        .layer-mid .comp {
+            border-left: 3px solid #f59e0b;
+        }
+        .layer-mid .comp .label .tag {
+            background: #fffbeb;
+            border-color: #fcd34d;
+        }
+
+        .layer-bottom .layer-header {
+            border-left: 4px solid #8b5cf6;
+        }
+        .layer-bottom .comp {
+            border-left: 3px solid #8b5cf6;
+        }
+        .layer-bottom .comp .label .tag {
+            background: #f5f3ff;
+            border-color: #c4b5fd;
+        }
+
+        .arrow-connector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 18px;
+            color: #9ca3af;
+            font-size: 18px;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 6px;
+        }
+        .arrow-connector span {
+            background: #f3f4f6;
+            padding: 0 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            color: #6b7280;
+            border: 1px solid #e5e9ed;
+        }
+
+        /* 底部标注 */
+        .footnote {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #9ca3af;
+            letter-spacing: 0.8px;
+            font-weight: 400;
+            border-top: 1px solid #eef1f4;
+            padding-top: 18px;
+        }
+
+        /* 按钮区域（在截图容器外部） */
+        .action-wrapper {
+            margin-top: 28px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-download {
+            background: #1a1a2e;
+            border: none;
+            color: #ffffff;
+            padding: 14px 44px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-download:hover {
+            background: #2d2d44;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .btn-download:active {
+            transform: translateY(1px);
+        }
+
+        .btn-download svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @media (max-width: 700px) {
+            #chartContainer {
+                padding: 20px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .layer-body {
+                padding: 14px;
+            }
+            .comp {
+                min-width: 100%;
+            }
+            .layer-desc {
+                display: none;
+            }
+            .title-group h1 {
+                font-size: 20px;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0.5in;
+            }
+            #chartContainer {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+                padding: 30px;
+            }
+            .action-wrapper {
+                display: none;
+            }
+            .btn-download {
+                display: none;
+            }
+            .comp {
+                box-shadow: none;
+            }
+            .layer {
+                break-inside: avoid;
+            }
+            .badge {
+                background: #f0f0f0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 架构图容器（截图目标，不包含按钮） -->
+    <div id="chartContainer">
+        <div class="header">
+            <div class="title-group">
+                <h1>⚙️ Primordium · CARV 分层异构架构</h1>
+                <div class="sub">CONSTRAINT-FIELD · VARIATIONAL · EXECUTOR</div>
+            </div>
+            <div class="badge">v1.0 · 战略定稿</div>
+        </div>
+
+        <div class="architecture">
+            <!-- 顶层 -->
+            <div class="layer layer-top">
+                <div class="layer-header">
+                    <span class="layer-icon">📐</span>
+                    <span class="layer-title">交互层 / 约束定义 <small>顶层接口</small></span>
+                    <span class="layer-desc">用户输入 · 自然语言翻译</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>📝</span> 约束描述 DSL <span class="tag">Python</span></div>
+                            <div class="desc">结构化定义 𝒫, ℳ, 𝒱 及材料属性 (E, ν, F)</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🔄</span> 语义翻译层 <span class="tag">JSON</span></div>
+                            <div class="desc">自然语言 → 结构化约束查询（LLM 仅限翻译）</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>📊</span> 可视化反馈 <span class="tag">Web UI</span></div>
+                            <div class="desc">实时显示约束势 Φ 收敛与拓扑演化</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector"><span>▼ 控制流 / 数据流 ▼</span></div>
+
+            <!-- 中层：CARV 引擎 -->
+            <div class="layer layer-mid">
+                <div class="layer-header">
+                    <span class="layer-icon">🧠</span>
+                    <span class="layer-title">CARV 引擎核心 <small>C++ 原生层</small></span>
+                    <span class="layer-desc">确定性数学演绎 · 硬约束裁决</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>⚡</span> 约束势 Φ 组装器 <span class="tag">C++</span></div>
+                            <div class="desc">𝒫 ⊕ ℳ ⊕ 𝒱 → 离散化泛函与梯度流</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🔍</span> 可达性检查器 <span class="tag">C++</span></div>
+                            <div class="desc">递归三定律验证 · Base Case 存在性判定</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🌀</span> CG 迭代求解器 <span class="tag">C++ / CANN</span></div>
+                            <div class="desc">求解 [K]{u} = {F} · 共轭梯度法（NPU 加速）</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🎯</span> OC / MMA 更新器 <span class="tag">C++</span></div>
+                            <div class="desc">密度场更新 · 体积分数硬截断（ℳ 边界）</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-connector"><span>▼ 算子下发 / 硬件调度 ▼</span></div>
+
+            <!-- 底层：CANN -->
+            <div class="layer layer-bottom">
+                <div class="layer-header">
+                    <span class="layer-icon">⚙️</span>
+                    <span class="layer-title">硬件执行层 <small>CANN / Ascend C</small></span>
+                    <span class="layer-desc">NPU 昇腾 910 · 场算子执行器</span>
+                </div>
+                <div class="layer-body">
+                    <div class="component-grid">
+                        <div class="comp">
+                            <div class="label"><span>🧮</span> 稀疏矩阵乘 <span class="tag">SpMV</span></div>
+                            <div class="desc">aclnnSparseMatMul · 高效处理 FEM 刚度矩阵</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>📦</span> 矢量运算库 <span class="tag">AOL</span></div>
+                            <div class="desc">逐元素运算 · 归约 · 硬截断（指示函数 I_𝒞）</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🔥</span> 自定义物理核 <span class="tag">Ascend C</span></div>
+                            <div class="desc">超弹性本构 · 硬势垒 · 非线性惩罚项</div>
+                        </div>
+                        <div class="comp">
+                            <div class="label"><span>🔗</span> 边界 ℬ 管理 <span class="tag">Runtime</span></div>
+                            <div class="desc">aclrtMemcpy · 数据搬运与 Stream 异步调度</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部标注 -->
+        <div class="footnote">
+            Primordium · 基于约束场的物理演绎体系 | 战略基准线 v1.0
+        </div>
+    </div>
+
+    <!-- 下载按钮 -->
+    <div class="action-wrapper">
+        <button class="btn-download" id="downloadBtn">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            下载纯净架构图 (PNG)
+        </button>
+    </div>
+
+    <script>
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const container = document.getElementById('chartContainer');
+            html2canvas(container, {
+                scale: 2.5,
+                backgroundColor: '#ffffff',
+                allowTaint: false,
+                useCORS: true,
+                logging: false,
+                windowHeight: container.scrollHeight,
+                windowWidth: container.scrollWidth
+            }).then((canvas) => {
+                const link = document.createElement('a');
+                link.download = 'Primordium_CARV_Architecture.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(() => {
+                alert('下载失败，但您可以直接右键保存图片。');
+            });
+        });
+    </script>
+
+</body>
+</html>

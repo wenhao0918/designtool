@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "draftengine"
+version = "0.1.0"
+description = "DraftEngine —— 3D 模型到工程图纸(工程画图):几何来自 OCC 内核,表达自研 SVG"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+draftengine = "draftengine.cli:main"
+
+[tool.setuptools]
+packages = ["draftengine"]

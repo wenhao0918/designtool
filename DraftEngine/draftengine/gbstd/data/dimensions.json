@@ -1,0 +1,25 @@
+{
+  "standard": "GB/T 4458.4-2003 / GB/T 16675.2-2018",
+  "summary": "尺寸注法与简化注法。箭头为实心细长三角形(长约3.5mm);平行尺寸线间距≥7mm,小尺寸在内大尺寸在外;直径前缀Φ、球面SΦ、半径R、球面半径SR、螺纹M、壁厚t、倒角C;同径孔均布标 n-Φ(如 4-Φ10);沉头孔标大径+锥角或用简化符号。",
+  "unit": "mm",
+  "arrow": {"len_mm": 3.5, "width_mm": 1.0, "style": "closed_solid"},
+  "spacing_mm": 7,
+  "text_height_mm": 3.5,
+  "prefixes": {
+    "diameter": "Φ",
+    "sphere_diameter": "SΦ",
+    "radius": "R",
+    "sphere_radius": "SR",
+    "thread": "M",
+    "wall_thickness": "t",
+    "chamfer": "C",
+    "count_separator": "-",
+    "equally_spaced": "EQS"
+  },
+  "rules": [
+    "尺寸数字不被任何图线穿过,不可避免时断开图线",
+    "同一图形的尺寸线间距应一致,≥7mm",
+    "标注真实尺寸,与绘图比例和准确度无关",
+    "小尺寸在内、大尺寸在外,避免尺寸线与尺寸界线相交"
+  ]
+}

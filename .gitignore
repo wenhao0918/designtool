@@ -1,0 +1,19 @@
+# 大体积书籍 PDF,不入库
+design_desc/*.pdf
+
+# 密钥与环境配置,不入库
+Anvil/.env
+AdminService/.env
+frontend/.env
+frontend/.env.local
+
+# Python 运行产物
+__pycache__/
+*.pyc
+
+# IDE 本地配置,不入库
+.trae/
+
+# 内网隧道脚本,仅本地使用,不入库
+tunnels.sh
+minio-tunnels.sh

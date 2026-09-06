@@ -1,0 +1,17 @@
+{
+  "code": "GB/T4458.4-2003",
+  "name": "机械制图 尺寸注法",
+  "status": "已收-规则",
+  "priority": "P0",
+  "source": "openstd.samr.gov.cn",
+  "source_url": "https://openstd.samr.gov.cn/bzgk/gb/std_list?p.p2=GB/T4458.4-2003",
+  "collected": null,
+  "replacement": false,
+  "pushed": true,
+  "pushed_date": "2026-08-26",
+  "ragflow_doc_ids": [
+    "6c0a5c59a0f211f1b8a47eb885516d10",
+    "6c583983a0f211f19a4b7eb885516d10",
+    "6c809fa0a0f211f194df7eb885516d10"
+  ]
+}

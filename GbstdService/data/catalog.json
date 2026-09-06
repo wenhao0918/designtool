@@ -1,0 +1,80 @@
+{
+  "draw": {
+    "label": "制图与标注",
+    "keywords": [
+      "制图",
+      "图纸",
+      "视图",
+      "投影",
+      "剖视",
+      "断面",
+      "尺寸标注",
+      "标注",
+      "公差",
+      "配合",
+      "粗糙度",
+      "焊缝",
+      "符号",
+      "图幅",
+      "比例",
+      "标题栏",
+      "明细栏",
+      "螺纹",
+      "齿轮",
+      "花键",
+      "弹簧",
+      "中心孔",
+      "倒角",
+      "圆角"
+    ],
+    "dataset_id": "64cc97e4a0ef11f19e5b7eb885516d10",
+    "status": "active",
+    "service": "ragflow"
+  },
+  "fasteners": {
+    "label": "紧固件",
+    "keywords": [
+      "螺栓",
+      "螺钉",
+      "螺母",
+      "垫圈",
+      "销轴",
+      "铆钉",
+      "紧固",
+      "挡圈",
+      "键联接"
+    ],
+    "dataset_id": "0880909da19511f19a5e7eb885516d10",
+    "status": "active",
+    "service": "ragflow"
+  },
+  "materials": {
+    "label": "材料与牌号",
+    "keywords": [
+      "材料",
+      "钢材",
+      "铝合金",
+      "牌号",
+      "力学性能",
+      "热处理",
+      "不锈钢",
+      "铸铁"
+    ],
+    "dataset_id": "",
+    "status": "planned",
+    "service": "ragflow"
+  },
+  "safety": {
+    "label": "安全与防护",
+    "keywords": [
+      "安全",
+      "防护",
+      "警告",
+      "危险",
+      "接地"
+    ],
+    "dataset_id": "",
+    "status": "planned",
+    "service": "ragflow"
+  }
+}

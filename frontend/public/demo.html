@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SketchPad 几何体画法 — 工具驱动</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#1a1a2e; color:#e0e0e0; font:14px/1.6 system-ui,sans-serif; overflow:hidden; }
+  canvas { display:block; }
+  .bar {
+    position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px; align-items:center;
+    background:rgba(0,0,0,.75); border-radius:12px; padding:10px 18px;
+    backdrop-filter:blur(8px); flex-wrap:wrap; justify-content:center;
+  }
+  .bar button { padding:7px 14px; border:1px solid #4a7dff; border-radius:8px; background:transparent; color:#4a7dff; cursor:pointer; font-size:12px; }
+  .bar button:hover { background:#4a7dff20; }
+  .bar button.on { background:#4a7dff; color:#fff; }
+  .title { position:absolute; top:20px; left:50%; transform:translateX(-50%); font-size:15px; color:#8899aa; background:rgba(0,0,0,.5); padding:6px 18px; border-radius:20px; }
+  .step { position:absolute; top:75px; left:50%; transform:translateX(-50%); font-size:13px; color:#7c9fff; background:rgba(74,125,255,.12); padding:4px 14px; border-radius:12px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="title" id="title">🎨 几何体画法 — 工具驱动</div>
+<div class="step" id="step"></div>
+<div class="bar" id="bar">
+  <button data-idx="0">1.🟫 长方体</button>
+  <button data-idx="1">2.🔵 球体</button>
+  <button data-idx="2">3.🫙 圆柱</button>
+  <button data-idx="3">4.📐 正圆锥</button>
+  <button data-idx="4">5.🔺 圆锥</button>
+  <button data-idx="5">6.🟦 立方体</button>
+</div>
+
+<script>
+const COL='#4a7dff', FILL='#f0f4ff';
+
+// === 从 SketchPad.vue 提取的绘制函数 ===
+
+function drawSphere(ctx, cx, cy, r) {
+  const R=r;
+  ctx.save(); ctx.fillStyle=FILL; ctx.strokeStyle=COL; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.quadraticCurveTo(cx,cy+R*.5,cx+R,cy); ctx.stroke();
+  ctx.setLineDash([5,4]); ctx.beginPath();
+  ctx.moveTo(cx+R,cy); ctx.quadraticCurveTo(cx,cy-R*.5,cx-R,cy); ctx.stroke();
+  ctx.setLineDash([]); ctx.restore();
+}
+
+function drawCube(ctx, cx, cy, s) {
+  const d=s*.5*.707;
+  const A={x:cx-s/2,y:cy+s/2}, B={x:cx+s/2,y:cy+s/2}, C={x:cx+s/2,y:cy-s/2}, D={x:cx-s/2,y:cy-s/2};
+  const E={x:cx+s/2+d,y:cy+s/2-d}, F={x:cx+s/2+d,y:cy-s/2-d}, G={x:cx-s/2+d,y:cy-s/2-d};
+  ctx.save(); ctx.fillStyle=FILL; ctx.strokeStyle=COL; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.lineTo(C.x,C.y); ctx.lineTo(D.x,D.y); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(D.x,D.y); ctx.lineTo(C.x,C.y); ctx.lineTo(F.x,F.y); ctx.lineTo(G.x,G.y); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(B.x,B.y); ctx.lineTo(E.x,E.y); ctx.lineTo(F.x,F.y); ctx.lineTo(C.x,C.y); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  ctx.save(); ctx.fillStyle=COL; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('立方体',cx,cy+s/2+12); ctx.restore();
+}
+
+function drawCylinder(ctx, cx, cy, r, h) {
+  const eh=r*.4, botY=cy+h;
+  ctx.save(); ctx.fillStyle=FILL; ctx.strokeStyle=COL; ctx.lineWidth=2;
+  ctx.setLineDash([5,4]); ctx.beginPath(); ctx.ellipse(cx,botY,r,eh,0,-Math.PI,0); ctx.stroke();
+  ctx.setLineDash([]); ctx.beginPath(); ctx.ellipse(cx,botY,r,eh,0,0,Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-r,cy); ctx.lineTo(cx-r,botY); ctx.moveTo(cx+r,cy); ctx.lineTo(cx+r,botY); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx,cy,r,eh,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  ctx.save(); ctx.fillStyle=COL; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('圆柱',cx,cy+r+12); ctx.restore();
+}
+
+function drawRightCone(ctx, cx, cy, r, tipX, tipY) {
+  const eh=r*.4;
+  ctx.save(); ctx.strokeStyle=COL; ctx.lineWidth=2;
+  ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(tipX,tipY); ctx.lineTo(cx,cy); ctx.stroke();
+  ctx.setLineDash([5,4]); ctx.beginPath(); ctx.ellipse(cx,cy,r,eh,0,-Math.PI,0); ctx.stroke();
+  ctx.setLineDash([]); ctx.beginPath(); ctx.ellipse(cx,cy,r,eh,0,0,Math.PI); ctx.fillStyle=FILL; ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-r,cy); ctx.lineTo(tipX,tipY); ctx.moveTo(cx+r,cy); ctx.lineTo(tipX,tipY); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx,cy,r,eh,0,0,Math.PI); ctx.stroke();
+  ctx.fillStyle=COL; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(tipX,tipY,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.save(); ctx.fillStyle=COL; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('正圆锥',cx,cy+r+12); ctx.restore();
+}
+
+function drawCone(ctx, cx, cy, r, tipX, tipY) {
+  const eh=r*.4;
+  ctx.save(); ctx.strokeStyle=COL; ctx.lineWidth=2;
+  ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(tipX,tipY); ctx.lineTo(cx,cy); ctx.stroke();
+  ctx.setLineDash([5,4]); ctx.beginPath(); ctx.ellipse(cx,cy,r,eh,0,-Math.PI,0); ctx.stroke();
+  ctx.setLineDash([]); ctx.beginPath(); ctx.ellipse(cx,cy,r,eh,0,0,Math.PI); ctx.fillStyle=FILL; ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-r,cy); ctx.lineTo(tipX,tipY); ctx.moveTo(cx+r,cy); ctx.lineTo(tipX,tipY); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx,cy,r,eh,0,0,Math.PI); ctx.stroke();
+  ctx.fillStyle=COL; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(tipX,tipY,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.save(); ctx.fillStyle=COL; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('圆锥',cx,cy+r+12); ctx.restore();
+}
+
+function drawCuboid(ctx, anc, ft, fl, dv) {
+  const A=anc, B={x:A.x+ft.x,y:A.y+ft.y}, C={x:A.x+ft.x+fl.x,y:A.y+ft.y+fl.y}, D={x:A.x+fl.x,y:A.y+fl.y};
+  const A2={x:A.x+dv.x,y:A.y+dv.y}, B2={x:B.x+dv.x,y:B.y+dv.y}, C2={x:C.x+dv.x,y:C.y+dv.y}, D2={x:D.x+dv.x,y:D.y+dv.y};
+  ctx.save(); ctx.fillStyle=FILL; ctx.strokeStyle=COL; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.lineTo(D.x,D.y);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(B2.x,B2.y);ctx.lineTo(A2.x,A2.y);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.lineTo(C2.x,C2.y);ctx.lineTo(B2.x,B2.y);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.restore();
+}
+
+// === scene JSON（和 sendSketch 发给后端格式一致）===
+const SCENES = [
+  { name:'长方体（三笔）', components:[{type:'cuboid',x:0,y:0,cuboidVectors:{frontTop:{x:180,y:20},frontLeft:{x:-15,y:-110},depthVec:{x:80,y:-55}}}] },
+  { name:'球体', components:[{type:'sphere',x:0,y:0,size:110}] },
+  { name:'圆柱（两笔）', components:[{type:'cylinder',x:0,y:0,size:200,cylinderRadius:80}] },
+  { name:'正圆锥（一笔）', components:[{type:'rcone',x:0,y:0,size:200,coneRadius:90,coneTip:{x:0,y:-200}}] },
+  { name:'圆锥（两笔）', components:[{type:'cone',x:0,y:0,size:210,coneRadius:85,coneTip:{x:30,y:-210}}] },
+  { name:'立方体', components:[{type:'cube',x:0,y:0,size:120}] }
+];
+
+const c=document.getElementById('c'), ctx=c.getContext('2d');
+const stepEl=document.getElementById('step'), titleEl=document.getElementById('title');
+let W,H;
+function rs(){W=window.innerWidth;H=window.innerHeight;const dpr=Math.min(devicePixelRatio||1,2);c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+rs(); window.addEventListener('resize',rs);
+const OX=W*.38, OY=H*.5;
+
+function d(x,y){ctx.save();ctx.fillStyle=COL;ctx.setLineDash([]);ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();ctx.restore();}
+function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+
+let sceneIdx=0, t=0;
+function anim(t){
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#ffffff06';ctx.lineWidth=1;
+  for(let x=40;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=40;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  const c=SCENES[sceneIdx].components[0], cx=OX, cy=OY;
+  let ft,fl,dv,anc,B,C,D,R,Hh,h,botY,tipX,tipY,p,ex,ey;
+
+  if(c.type==='cuboid'){
+    anc={x:cx,y:cy}; ft=c.cuboidVectors.frontTop; fl=c.cuboidVectors.frontLeft; dv=c.cuboidVectors.depthVec;
+    B={x:anc.x+ft.x,y:anc.y+ft.y}; C={x:B.x+fl.x,y:B.y+fl.y}; D={x:anc.x+fl.x,y:anc.y+fl.y};
+    if(t<0.3){p=ease(t/.3); stepEl.textContent='① 横划：定义正面长度';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.moveTo(anc.x,anc.y);ctx.lineTo(anc.x+ft.x*p,anc.y+ft.y*p);ctx.stroke();ctx.setLineDash([]);d(anc.x,anc.y);ctx.restore();}
+    else if(t<0.55){p=ease((t-.3)/.25); stepEl.textContent='② 竖划：定义正面高度';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(anc.x,anc.y);ctx.lineTo(B.x,B.y);ctx.stroke();ctx.restore();d(anc.x,anc.y);
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      const Dx=anc.x+fl.x*p,Dy=anc.y+fl.y*p,Cx=B.x+fl.x*p,Cy=B.y+fl.y*p;
+      ctx.beginPath();ctx.moveTo(anc.x,anc.y);ctx.lineTo(Dx,Dy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(Dx,Dy);ctx.lineTo(Cx,Cy);ctx.lineTo(B.x,B.y);ctx.stroke();ctx.restore();}
+    else if(t<0.8){p=ease((t-.55)/.25); stepEl.textContent='③ 斜划：定义深度';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(anc.x,anc.y);ctx.lineTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.lineTo(D.x,D.y);ctx.closePath();ctx.stroke();ctx.restore();d(anc.x,anc.y);
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.moveTo(anc.x,anc.y);ctx.lineTo(anc.x+dv.x*p,anc.y+dv.y*p);ctx.stroke();ctx.restore();}
+    else{stepEl.textContent='';drawCuboid(ctx,anc,ft,fl,dv);}
+  }
+  else if(c.type==='sphere'){R=c.size;
+    if(t<0.35){p=ease(t/.35); stepEl.textContent='拖拽半径';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.ellipse(cx,cy,R*p,R*p*.4,-.45,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*p,cy);ctx.stroke();ctx.setLineDash([]);d(cx,cy);ctx.restore();}
+    else{stepEl.textContent='';drawSphere(ctx,cx,cy,R);}
+  }
+  else if(c.type==='cylinder'){R=c.cylinderRadius; Hh=c.size;
+    if(t<0.35){p=ease(t/.35); stepEl.textContent='① 定直径';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.ellipse(cx,cy,R*p,R*p*.4,0,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*p,cy);ctx.stroke();ctx.setLineDash([]);d(cx,cy);ctx.restore();}
+    else if(t<0.65){p=ease((t-.35)/.3); h=Hh*p; botY=cy+h; stepEl.textContent='② 定高度';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([]);
+      ctx.beginPath();ctx.ellipse(cx,cy,R,R*.4,0,0,Math.PI*2);ctx.fillStyle=FILL;ctx.fill();ctx.stroke();
+      ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx,botY);ctx.stroke();ctx.restore();d(cx,cy);
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;
+      ctx.setLineDash([5,4]);ctx.beginPath();ctx.ellipse(cx,botY,R,R*.4,0,-Math.PI,0);ctx.stroke();
+      ctx.setLineDash([]);ctx.beginPath();ctx.ellipse(cx,botY,R,R*.4,0,0,Math.PI);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx-R,cy);ctx.lineTo(cx-R,botY);ctx.moveTo(cx+R,cy);ctx.lineTo(cx+R,botY);ctx.stroke();ctx.restore();}
+    else{stepEl.textContent='';drawCylinder(ctx,cx,cy,R,Hh);}
+  }
+  else if(c.type==='rcone'){R=c.coneRadius; tipX=cx+c.coneTip.x; tipY=cy+c.coneTip.y;
+    if(t<0.5){p=ease(t/.5); ex=cx+R*p; ey=cy+(tipY-cy)*p; stepEl.textContent='斜划：水平=半径，竖直=高度';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);ctx.stroke();
+      ctx.setLineDash([6,4]);ctx.beginPath();ctx.ellipse(cx,cy,R*p,R*p*.4,0,0,Math.PI*2);ctx.stroke();
+      ctx.setLineDash([]);d(cx,cy);ctx.restore();}
+    else{stepEl.textContent='';drawRightCone(ctx,cx,cy,R,tipX,tipY);}
+  }
+  else if(c.type==='cone'){R=c.coneRadius; tipX=cx+c.coneTip.x; tipY=cy+c.coneTip.y;
+    if(t<0.32){p=ease(t/.32); stepEl.textContent='① 定底面直径';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.ellipse(cx,cy,R*p,R*p*.4,0,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*p,cy);ctx.stroke();ctx.setLineDash([]);d(cx,cy);ctx.restore();}
+    else if(t<0.65){p=ease((t-.32)/.33); const tX=cx+(tipX-cx)*p,tY=cy+(tipY-cy)*p; stepEl.textContent='② 定顶点';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;
+      ctx.setLineDash([5,4]);ctx.beginPath();ctx.ellipse(cx,cy,R,R*.4,0,-Math.PI,0);ctx.stroke();
+      ctx.setLineDash([]);ctx.beginPath();ctx.ellipse(cx,cy,R,R*.4,0,0,Math.PI);ctx.stroke();
+      ctx.setLineDash([6,4]);
+      ctx.beginPath();ctx.moveTo(cx-R,cy);ctx.lineTo(tX,tY);ctx.moveTo(cx+R,cy);ctx.lineTo(tX,tY);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(tX,tY);ctx.lineTo(cx,cy);ctx.stroke();ctx.setLineDash([]);d(tX,tY);d(cx,cy);ctx.restore();}
+    else{stepEl.textContent='';drawCone(ctx,cx,cy,R,tipX,tipY);}
+  }
+  else if(c.type==='cube'){
+    if(t<0.4){p=ease(t/.4); stepEl.textContent='拖拽：边长+方向';
+      ctx.save();ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+      const sz=c.size*p;ctx.beginPath();ctx.rect(cx-sz/2,cy-sz/2,sz,sz);ctx.stroke();
+      ctx.setLineDash([]);d(cx,cy);ctx.restore();}
+    else{stepEl.textContent='';drawCube(ctx,cx,cy,c.size);}
+  }
+}
+
+function loop(ts){ t=(ts%3200)/3200; anim(t); requestAnimationFrame(loop); }
+function sw(i){ sceneIdx=i; titleEl.textContent='🎨 '+SCENES[i].name;
+  document.querySelectorAll('#bar button').forEach((b,j)=>b.classList.toggle('on',j===i)); }
+sw(0);requestAnimationFrame(loop);
+document.querySelectorAll('#bar button').forEach(b=>{b.addEventListener('click',()=>sw(+b.dataset.idx));});
+</script>
+</body>
+</html>

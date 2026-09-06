@@ -1,0 +1,212 @@
+[
+ {
+  "s": "std_dimensions",
+  "p": "定义",
+  "o": "param_dimensions_arrow"
+ },
+ {
+  "s": "std_dimensions",
+  "p": "定义",
+  "o": "param_dimensions_spacing_mm"
+ },
+ {
+  "s": "std_dimensions",
+  "p": "定义",
+  "o": "param_dimensions_text_height_mm"
+ },
+ {
+  "s": "std_dimensions",
+  "p": "定义",
+  "o": "param_dimensions_prefixes"
+ },
+ {
+  "s": "std_dimensions",
+  "p": "定义",
+  "o": "param_dimensions_rules"
+ },
+ {
+  "s": "std_fonts",
+  "p": "定义",
+  "o": "param_fonts_heights"
+ },
+ {
+  "s": "std_fonts",
+  "p": "定义",
+  "o": "param_fonts_width_ratio"
+ },
+ {
+  "s": "std_fonts",
+  "p": "定义",
+  "o": "param_fonts_dimension_text"
+ },
+ {
+  "s": "std_fonts",
+  "p": "定义",
+  "o": "param_fonts_view_label"
+ },
+ {
+  "s": "std_fonts",
+  "p": "定义",
+  "o": "param_fonts_title_text"
+ },
+ {
+  "s": "std_fonts",
+  "p": "定义",
+  "o": "param_fonts_small_text"
+ },
+ {
+  "s": "std_geomtol",
+  "p": "定义",
+  "o": "param_geomtol_grades"
+ },
+ {
+  "s": "std_geomtol",
+  "p": "定义",
+  "o": "param_geomtol_default_unspecified"
+ },
+ {
+  "s": "std_geomtol",
+  "p": "定义",
+  "o": "param_geomtol_applies"
+ },
+ {
+  "s": "std_lines",
+  "p": "定义",
+  "o": "param_lines_width_series"
+ },
+ {
+  "s": "std_lines",
+  "p": "定义",
+  "o": "param_lines_preferred_bold"
+ },
+ {
+  "s": "std_lines",
+  "p": "定义",
+  "o": "param_lines_bold_thin_ratio"
+ },
+ {
+  "s": "std_lines",
+  "p": "定义",
+  "o": "param_lines_color"
+ },
+ {
+  "s": "std_lines",
+  "p": "定义",
+  "o": "param_lines_types"
+ },
+ {
+  "s": "std_projection",
+  "p": "定义",
+  "o": "param_projection_method"
+ },
+ {
+  "s": "std_projection",
+  "p": "定义",
+  "o": "param_projection_symbol"
+ },
+ {
+  "s": "std_projection",
+  "p": "定义",
+  "o": "param_projection_layout"
+ },
+ {
+  "s": "std_roughness",
+  "p": "定义",
+  "o": "param_roughness_parameter"
+ },
+ {
+  "s": "std_roughness",
+  "p": "定义",
+  "o": "param_roughness_series"
+ },
+ {
+  "s": "std_roughness",
+  "p": "定义",
+  "o": "param_roughness_common_machined"
+ },
+ {
+  "s": "std_scales",
+  "p": "定义",
+  "o": "param_scales_magnify_preferred"
+ },
+ {
+  "s": "std_scales",
+  "p": "定义",
+  "o": "param_scales_magnify_unpreferred"
+ },
+ {
+  "s": "std_scales",
+  "p": "定义",
+  "o": "param_scales_reduce_preferred"
+ },
+ {
+  "s": "std_scales",
+  "p": "定义",
+  "o": "param_scales_reduce_unpreferred"
+ },
+ {
+  "s": "std_sheets",
+  "p": "定义",
+  "o": "param_sheets_sizes"
+ },
+ {
+  "s": "std_sheets",
+  "p": "定义",
+  "o": "param_sheets_binding_margin"
+ },
+ {
+  "s": "std_titleblock",
+  "p": "定义",
+  "o": "param_titleblock_size_mm"
+ },
+ {
+  "s": "std_titleblock",
+  "p": "定义",
+  "o": "param_titleblock_position"
+ },
+ {
+  "s": "std_titleblock",
+  "p": "定义",
+  "o": "param_titleblock_fields"
+ },
+ {
+  "s": "std_tolerances",
+  "p": "定义",
+  "o": "param_tolerances_grades"
+ },
+ {
+  "s": "std_tolerances",
+  "p": "定义",
+  "o": "param_tolerances_default_grade"
+ },
+ {
+  "s": "std_dimensions",
+  "p": "关联",
+  "o": "std_scales"
+ },
+ {
+  "s": "std_dimensions",
+  "p": "关联",
+  "o": "std_lines"
+ },
+ {
+  "s": "std_projection",
+  "p": "关联",
+  "o": "std_sheets"
+ },
+ {
+  "s": "std_titleblock",
+  "p": "关联",
+  "o": "std_sheets"
+ },
+ {
+  "s": "std_tolerances",
+  "p": "关联",
+  "o": "std_geomtol"
+ },
+ {
+  "s": "std_roughness",
+  "p": "关联",
+  "o": "std_tolerances"
+ }
+]

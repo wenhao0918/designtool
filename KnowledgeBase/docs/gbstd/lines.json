@@ -1,0 +1,16 @@
+{
+  "standard": "GB/T 4457.4-2002",
+  "summary": "图线。线宽系列 0.13/0.18/0.25/0.35/0.5/0.7/1/1.4/2mm,粗线优先 0.5/0.7,粗:细=2:1。机械图样常用:粗实线(可见轮廓)、细虚线(不可见)、细点划线(轴线/对称中心)、细实线(尺寸/剖面线)。",
+  "unit": "mm",
+  "width_series": [0.13, 0.18, 0.25, 0.35, 0.5, 0.7, 1.0, 1.4, 2.0],
+  "preferred_bold": [0.5, 0.7],
+  "bold_thin_ratio": 2,
+  "color": "black",
+  "types": {
+    "visible":  {"class": "line",       "width": "bold", "dash": "solid"},
+    "hidden":   {"class": "hidden",     "width": "thin", "dash_len_w": 12, "gap_w": 3},
+    "center":   {"class": "centerline", "width": "thin", "long_w": 20, "gap_w": 3, "dot_w": 1},
+    "dimension":{"class": "dim",        "width": "thin", "dash": "solid"}
+  },
+  "note": "虚线短画长≈12×线宽,间隔≈3×线宽;点划线长画≈20×线宽,应超出轮廓 2~5mm"
+}

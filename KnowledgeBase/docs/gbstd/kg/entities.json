@@ -1,0 +1,278 @@
+{
+ "std_dimensions": {
+  "label": "GB/T 4458.4-2003 / GB/T 16675.2-2018",
+  "type": "standard",
+  "section": "dimensions",
+  "summary": "尺寸注法与简化注法。箭头为实心细长三角形(长约3.5mm);平行尺寸线间距≥7mm,小尺寸在内大尺寸在外;直径前缀Φ、球面SΦ、半径R、球面半径SR、螺纹M、壁厚t、倒角C;同径孔均布标 n-Φ(如 "
+ },
+ "param_dimensions_arrow": {
+  "label": "dimensions·arrow",
+  "type": "param",
+  "std": "GB/T 4458.4-2003 / GB/T 16675.2-2018",
+  "value": "{\"len_mm\": 3.5, \"width_mm\": 1.0, \"style\": \"closed_solid\"}"
+ },
+ "param_dimensions_spacing_mm": {
+  "label": "dimensions·spacing_mm",
+  "type": "param",
+  "std": "GB/T 4458.4-2003 / GB/T 16675.2-2018",
+  "value": 7
+ },
+ "param_dimensions_text_height_mm": {
+  "label": "dimensions·text_height_mm",
+  "type": "param",
+  "std": "GB/T 4458.4-2003 / GB/T 16675.2-2018",
+  "value": 3.5
+ },
+ "param_dimensions_prefixes": {
+  "label": "dimensions·prefixes",
+  "type": "param",
+  "std": "GB/T 4458.4-2003 / GB/T 16675.2-2018",
+  "value": "{\"diameter\": \"Φ\", \"sphere_diameter\": \"SΦ\", \"radius\": \"R\", \"sphere_radius\": \"SR\", \"thread\": \"M\", \"wall_thickness\": \"t\", \""
+ },
+ "param_dimensions_rules": {
+  "label": "dimensions·rules",
+  "type": "param",
+  "std": "GB/T 4458.4-2003 / GB/T 16675.2-2018",
+  "value": "[\"尺寸数字不被任何图线穿过,不可避免时断开图线\", \"同一图形的尺寸线间距应一致,≥7mm\", \"标注真实尺寸,与绘图比例和准确度无关\", \"小尺寸在内、大尺寸在外,避免尺寸线与尺寸界线相交\"]"
+ },
+ "std_fonts": {
+  "label": "GB/T 14691-1993",
+  "type": "standard",
+  "section": "fonts",
+  "summary": "技术制图字体。字高系列 1.8/2.5/3.5/5/7/10/14/20mm,字宽≈字高/√2≈0.7×字高。图纸常用:尺寸数字 3.5mm,视图名 5mm,图名 7mm。"
+ },
+ "param_fonts_heights": {
+  "label": "fonts·heights",
+  "type": "param",
+  "std": "GB/T 14691-1993",
+  "value": "[1.8, 2.5, 3.5, 5, 7, 10, 14, 20]"
+ },
+ "param_fonts_width_ratio": {
+  "label": "fonts·width_ratio",
+  "type": "param",
+  "std": "GB/T 14691-1993",
+  "value": 0.7071
+ },
+ "param_fonts_dimension_text": {
+  "label": "fonts·dimension_text",
+  "type": "param",
+  "std": "GB/T 14691-1993",
+  "value": 3.5
+ },
+ "param_fonts_view_label": {
+  "label": "fonts·view_label",
+  "type": "param",
+  "std": "GB/T 14691-1993",
+  "value": 5
+ },
+ "param_fonts_title_text": {
+  "label": "fonts·title_text",
+  "type": "param",
+  "std": "GB/T 14691-1993",
+  "value": 7
+ },
+ "param_fonts_small_text": {
+  "label": "fonts·small_text",
+  "type": "param",
+  "std": "GB/T 14691-1993",
+  "value": 2.5
+ },
+ "std_geomtol": {
+  "label": "GB/T 1184-1996",
+  "type": "standard",
+  "section": "geomtol",
+  "summary": "形状和位置公差未注公差。未注形位公差等级 H/K/L(直线度、平面度、垂直度、对称度、圆跳动),图纸不单独标注时按 K 级(常用),标注于技术要求,如'未注形位公差按 GB/T 1184-K'。"
+ },
+ "param_geomtol_grades": {
+  "label": "geomtol·grades",
+  "type": "param",
+  "std": "GB/T 1184-1996",
+  "value": "[\"H\", \"K\", \"L\"]"
+ },
+ "param_geomtol_default_unspecified": {
+  "label": "geomtol·default_unspecified",
+  "type": "param",
+  "std": "GB/T 1184-1996",
+  "value": "K"
+ },
+ "param_geomtol_applies": {
+  "label": "geomtol·applies",
+  "type": "param",
+  "std": "GB/T 1184-1996",
+  "value": "[\"直线度\", \"平面度\", \"垂直度\", \"对称度\", \"圆跳动\"]"
+ },
+ "std_lines": {
+  "label": "GB/T 4457.4-2002",
+  "type": "standard",
+  "section": "lines",
+  "summary": "图线。线宽系列 0.13/0.18/0.25/0.35/0.5/0.7/1/1.4/2mm,粗线优先 0.5/0.7,粗:细=2:1。机械图样常用:粗实线(可见轮廓)、细虚线(不可见)、细点划线(轴线"
+ },
+ "param_lines_width_series": {
+  "label": "lines·width_series",
+  "type": "param",
+  "std": "GB/T 4457.4-2002",
+  "value": "[0.13, 0.18, 0.25, 0.35, 0.5, 0.7, 1.0, 1.4, 2.0]"
+ },
+ "param_lines_preferred_bold": {
+  "label": "lines·preferred_bold",
+  "type": "param",
+  "std": "GB/T 4457.4-2002",
+  "value": "[0.5, 0.7]"
+ },
+ "param_lines_bold_thin_ratio": {
+  "label": "lines·bold_thin_ratio",
+  "type": "param",
+  "std": "GB/T 4457.4-2002",
+  "value": 2
+ },
+ "param_lines_color": {
+  "label": "lines·color",
+  "type": "param",
+  "std": "GB/T 4457.4-2002",
+  "value": "black"
+ },
+ "param_lines_types": {
+  "label": "lines·types",
+  "type": "param",
+  "std": "GB/T 4457.4-2002",
+  "value": "{\"visible\": {\"class\": \"line\", \"width\": \"bold\", \"dash\": \"solid\"}, \"hidden\": {\"class\": \"hidden\", \"width\": \"thin\", \"dash_le"
+ },
+ "std_projection": {
+  "label": "GB/T 17452-1998 / GB/T 4458.1-2002",
+  "type": "standard",
+  "section": "projection",
+  "summary": "投影法与视图配置。我国默认第一角投影(GB/T 17452):主视图左上,俯视图在主视图正下方(长对正),左视图在主视图正右方(高平齐),俯视深度=左视宽度(宽相等)。"
+ },
+ "param_projection_method": {
+  "label": "projection·method",
+  "type": "param",
+  "std": "GB/T 17452-1998 / GB/T 4458.1-2002",
+  "value": "first_angle"
+ },
+ "param_projection_symbol": {
+  "label": "projection·symbol",
+  "type": "param",
+  "std": "GB/T 17452-1998 / GB/T 4458.1-2002",
+  "value": "truncated_cone"
+ },
+ "param_projection_layout": {
+  "label": "projection·layout",
+  "type": "param",
+  "std": "GB/T 17452-1998 / GB/T 4458.1-2002",
+  "value": "{\"front\": \"左上(基准视图)\", \"top\": \"主视图正下方,长对正\", \"left\": \"主视图正右方,高平齐\", \"width_equal\": \"俯视图深度与左视图宽度相等\"}"
+ },
+ "std_roughness": {
+  "label": "GB/T 1031-2009",
+  "type": "standard",
+  "section": "roughness",
+  "summary": "表面粗糙度参数及数值。优先 Ra 系列:0.012/0.025/0.05/0.1/0.2/0.4/0.8/1.6/3.2/6.3/12.5/25/50/100μm。机加工常用 0.8/1.6/3.2/"
+ },
+ "param_roughness_parameter": {
+  "label": "roughness·parameter",
+  "type": "param",
+  "std": "GB/T 1031-2009",
+  "value": "Ra"
+ },
+ "param_roughness_series": {
+  "label": "roughness·series",
+  "type": "param",
+  "std": "GB/T 1031-2009",
+  "value": "[0.012, 0.025, 0.05, 0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 6.3, 12.5, 25, 50, 100]"
+ },
+ "param_roughness_common_machined": {
+  "label": "roughness·common_machined",
+  "type": "param",
+  "std": "GB/T 1031-2009",
+  "value": "[0.8, 1.6, 3.2, 6.3, 12.5]"
+ },
+ "std_scales": {
+  "label": "GB/T 14690-1993",
+  "type": "standard",
+  "section": "scales",
+  "summary": "比例。原值比例 1:1;放大优先 5:1、2:1,缩小优先 1:2、1:5、1:10;括号内为允许的非优先系列。"
+ },
+ "param_scales_magnify_preferred": {
+  "label": "scales·magnify_preferred",
+  "type": "param",
+  "std": "GB/T 14690-1993",
+  "value": "[2, 5]"
+ },
+ "param_scales_magnify_unpreferred": {
+  "label": "scales·magnify_unpreferred",
+  "type": "param",
+  "std": "GB/T 14690-1993",
+  "value": "[2.5, 4]"
+ },
+ "param_scales_reduce_preferred": {
+  "label": "scales·reduce_preferred",
+  "type": "param",
+  "std": "GB/T 14690-1993",
+  "value": "[2, 5, 10]"
+ },
+ "param_scales_reduce_unpreferred": {
+  "label": "scales·reduce_unpreferred",
+  "type": "param",
+  "std": "GB/T 14690-1993",
+  "value": "[1.5, 2.5, 3, 4]"
+ },
+ "std_sheets": {
+  "label": "GB/T 14689-2008",
+  "type": "standard",
+  "section": "sheets",
+  "summary": "图纸幅面和格式。基本幅面 A0~A4,可留装订边(装订边 a=25mm,其余边 c)或不留(四边 e)。"
+ },
+ "param_sheets_sizes": {
+  "label": "sheets·sizes",
+  "type": "param",
+  "std": "GB/T 14689-2008",
+  "value": "{\"A0\": {\"w\": 841, \"h\": 1189, \"c\": 10, \"e\": 20}, \"A1\": {\"w\": 594, \"h\": 841, \"c\": 10, \"e\": 20}, \"A2\": {\"w\": 420, \"h\": 594,"
+ },
+ "param_sheets_binding_margin": {
+  "label": "sheets·binding_margin",
+  "type": "param",
+  "std": "GB/T 14689-2008",
+  "value": 25
+ },
+ "std_titleblock": {
+  "label": "GB/T 10609.1-2008",
+  "type": "standard",
+  "section": "titleblock",
+  "summary": "标题栏。标准尺寸 180mm×56mm,配置在图框右下角。含:图名、图号、比例、材料、数量/重量、设计/审核/工艺、日期、单位等。文字方向与看图方向一致。"
+ },
+ "param_titleblock_size_mm": {
+  "label": "titleblock·size_mm",
+  "type": "param",
+  "std": "GB/T 10609.1-2008",
+  "value": "{\"w\": 180, \"h\": 56}"
+ },
+ "param_titleblock_position": {
+  "label": "titleblock·position",
+  "type": "param",
+  "std": "GB/T 10609.1-2008",
+  "value": "图框右下角,紧贴下图框线和右图框线"
+ },
+ "param_titleblock_fields": {
+  "label": "titleblock·fields",
+  "type": "param",
+  "std": "GB/T 10609.1-2008",
+  "value": "[\"单位\", \"图名\", \"图号\", \"比例\", \"材料\", \"数量\", \"重量\", \"张次\", \"设计\", \"审核\", \"工艺\", \"日期\"]"
+ },
+ "std_tolerances": {
+  "label": "GB/T 1804-2000",
+  "type": "standard",
+  "section": "tolerances",
+  "summary": "一般公差(未注公差)。线性/角度尺寸的未注公差等级:f(精密)、m(中等)、c(粗糙)、v(最粗),默认 m 级,标注于技术要求,如'未注尺寸公差按 GB/T 1804-m'。"
+ },
+ "param_tolerances_grades": {
+  "label": "tolerances·grades",
+  "type": "param",
+  "std": "GB/T 1804-2000",
+  "value": "{\"f\": {\"name\": \"精密\", \"range\": \"0.5~400mm IT12级左右\"}, \"m\": {\"name\": \"中等\", \"range\": \"0.5~400mm IT14级左右\"}, \"c\": {\"name\": \"粗糙"
+ },
+ "param_tolerances_default_grade": {
+  "label": "tolerances·default_grade",
+  "type": "param",
+  "std": "GB/T 1804-2000",
+  "value": "m"
+ }
+}

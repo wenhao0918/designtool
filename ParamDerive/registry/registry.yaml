@@ -1,0 +1,92 @@
+params:
+  前段翻转角:
+    created: '2026-07-31T05:55:31.255089'
+    value: 65
+    unit: 度
+    confidence: '****'
+    updated: '2026-07-31T05:55:54.347336'
+    updated_by: 文豪
+  推杆推力_F:
+    created: '2026-07-31T05:55:31.257455'
+    value: 5000
+    unit: N
+    confidence: '****'
+    updated: '2026-07-31T05:55:54.362349'
+    updated_by: 文豪
+  壁厚:
+    created: '2026-07-31T05:55:31.261015'
+    value: 20
+    unit: mm
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.377071'
+    updated_by: 文豪
+  底座_长:
+    created: '2026-07-31T05:55:31.265788'
+    value: 480
+    unit: mm
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.392030'
+    updated_by: 文豪
+  底座_宽:
+    created: '2026-07-31T05:55:31.271764'
+    value: 380
+    unit: mm
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.405438'
+    updated_by: 文豪
+  底座_高:
+    created: '2026-07-31T05:55:31.278907'
+    value: 400
+    unit: mm
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.418772'
+    updated_by: 文豪
+  后段抬升角:
+    created: '2026-07-31T05:55:31.287315'
+    value: 15
+    unit: 度
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.431877'
+    updated_by: 文豪
+  波纹管间隙:
+    created: '2026-07-31T05:55:31.296926'
+    value: 20
+    unit: mm
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.444763'
+    updated_by: 文豪
+  安全系数推杆:
+    created: '2026-07-31T05:55:31.308015'
+    value: 1.5
+    unit: '-'
+    confidence: ★★★★☆
+    updated: '2026-07-31T05:55:31.308025'
+    updated_by: 文豪
+  座圈高度:
+    created: '2026-07-31T05:55:31.320165'
+    value: 435
+    unit: mm
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.471455'
+    updated_by: 文豪
+  额定承重:
+    created: '2026-07-31T05:55:31.334309'
+    value: 200
+    unit: kg
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.484667'
+    updated_by: 文豪
+  安全系数:
+    created: '2026-07-31T05:55:54.457618'
+    value: 1.5
+    unit: '-'
+    confidence: '****'
+    updated: '2026-07-31T05:55:54.457626'
+    updated_by: 文豪
+  推杆行程:
+    created: '2026-07-31T05:55:54.497532'
+    value: 225
+    unit: mm
+    confidence: '***'
+    updated: '2026-07-31T05:55:54.497540'
+    updated_by: 文豪

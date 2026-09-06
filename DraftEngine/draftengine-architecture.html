@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DraftService 架构图</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: white;
+      min-height: 100vh;
+      padding: 2rem;
+      color: #1f2937;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      margin-bottom: 2rem;
+    }
+    
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .architecture-diagram {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .service-box {
+      position: relative;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: #fafafa;
+    }
+    
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .service-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    
+    .service-port {
+      font-size: 14px;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
+    
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .pipeline-stage {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .stage-icon {
+      width: 32px;
+      height: 32px;
+      background: #10b981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    
+    .stage-content {
+      flex: 1;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    
+    .stage-title {
+      font-weight: 600;
+      color: #166534;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stage-desc {
+      font-size: 14px;
+      color: #16a34a;
+      margin-bottom: 0.5rem;
+    }
+    
+    .sub-stages {
+      margin-left: 1rem;
+      border-left: 2px solid #dcfce7;
+      padding-left: 1rem;
+    }
+    
+    .sub-stage {
+      margin-bottom: 0.75rem;
+    }
+    
+    .sub-stage-title {
+      font-weight: 500;
+      color: #16a34a;
+      margin-bottom: 0.25rem;
+      font-size: 13px;
+    }
+    
+    .sub-stage-desc {
+      font-size: 12px;
+      color: #22c55e;
+    }
+    
+    .tools-section {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .tools-title {
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 0.5rem;
+    }
+    
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    
+    .tool-item {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 0.75rem;
+    }
+    
+    .tool-name {
+      font-weight: 600;
+      color: #92400e;
+      font-size: 13px;
+    }
+    
+    .tool-desc {
+      font-size: 12px;
+      color: #a16207;
+      margin-top: 0.25rem;
+    }
+    
+    .dependency {
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .dependency-title {
+      font-weight: 600;
+      color: #1e40af;
+      margin-bottom: 0.5rem;
+    }
+    
+    .dependency-list {
+      font-size: 13px;
+      color: #1e40af;
+    }
+    
+    .dependency-item {
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .highlight {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 0.125rem 0.25rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="architecture-diagram">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1 class="service-title">DraftService 架构</h1>
+      </div>
+      
+      <div class="service-box">
+        <div class="service-header">
+          <div class="service-title">DraftService</div>
+          <div class="service-port">8100</div>
+          <div class="service-port">tmux "draftengine"</div>
+        </div>
+        
+        <div class="pipeline">
+          <div class="pipeline-stage">
+            <div class="stage-icon">1</div>
+            <div class="stage-content">
+              <div class="stage-title">SSE 流式处理管线</div>
+              <div class="stage-desc">事件驱动的分步执行架构</div>
+              
+              <div class="sub-stages">
+                <div class="sub-stage">
+                  <div class="sub-stage-title">upload</div>
+                  <div class="sub-stage-desc">STEP 文件上传解析</div>
+                </div>
+                <div class="sub-stage">
+                  <div class="sub-stage-title">load/analyze</div>
+                  <div class="sub-stage-desc">STEP 加载 + 几何分析</div>
+                </div>
+                <div class="sub-stage">
+                  <div class="sub-stage-title">techreq</div>
+                  <div class="sub-stage-desc">技术要求自动推荐</div>
+                </div>
+                <div class="sub-stage">
+                  <div class="sub-stage-title">view</div>
+                  <div class="sub-stage-desc">主视图生成 (TechDraw)</div>
+                </div>
+                <div class="sub-stage">
+                  <div class="sub-stage-title">annotate</div>
+                  <div class="sub-stage-desc">AI 标注决策 (VLM 降级)</div>
+                </div>
+                <div class="sub-stage">
+                  <div class="sub-stage-title">export</div>
+                  <div class="sub-stage-desc">SVG/DWG 终稿导出</div>
+                </div>
+                <div class="sub-stage">
+                  <div class="sub-stage-title">done</div>
+                  <div class="sub-stage-desc">完成反馈</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="pipeline-stage">
+            <div class="stage-icon">2</div>
+            <div class="stage-content">
+              <div class="stage-title">GB 标准集成</div>
+              <div class="stage-desc">国标知识库 + 自动合规检查</div>
+              <div class="sub-stages">
+                <div class="sub-stage">
+                  <div class="sub-stage-title">本地规则引擎</div>
+                  <div class="sub-stage-desc">svgparts 硬编码规则 (幅面/线宽/字号)</div>
+                </div>
+                <div class="sub-stage">
+                  <div class="sub-stage-title">RAGFlow 联检</div>
+                  <div class="sub-stage-desc">语义检索增强</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tools-section">
+          <div class="tools-title">HTTP + MCP 双通道工具</div>
+          <div class="tool-grid">
+            <div class="tool-item">
+              <div class="tool-name">generate_drawing_from_path</div>
+              <div class="tool-desc">文件路径 → 工程图纸</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">generate_drawing_from_file</div>
+              <div class="tool-desc">文件流 → 工程图纸</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">generate_drawing_stream</div>
+              <div class="tool-desc">SSE 流式管线</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">generate_drawing_auto</div>
+              <div class="tool-desc">完整自动化管线</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">get_gb_standards</div>
+              <div class="tool-desc">GB 标准查询</div>
+            </div>
+            <div class="tool-item">
+              <div class="tool-name">download_artifact</div>
+              <div class="tool-desc">产物下载</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dependency">
+          <div class="dependency-title">依赖关系</div>
+          <div class="dependency-list">
+            <div class="dependency-item">
+              <span>→</span>
+              <span><span class="highlight">CADService 8102</span>: STEP 原始模型获取</span>
+            </div>
+            <div class="dependency-item">
+              <span>→</span>
+              <span><span class="highlight">KnowledgeBase 8101</span>: 国标知识检索</span>
+            </div>
+            <div class="dependency-item">
+              <span>→</span>
+              <span><span class="highlight">GbstdService 8104</span>: GB 标准分类查询</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

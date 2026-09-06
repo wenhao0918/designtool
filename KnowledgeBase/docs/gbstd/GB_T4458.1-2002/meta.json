@@ -1,0 +1,15 @@
+{
+  "code": "GB/T4458.1-2002",
+  "name": "机械制图 图样画法 视图",
+  "status": "待校对",
+  "priority": "P0",
+  "source": "openstd.samr.gov.cn",
+  "source_url": "https://openstd.samr.gov.cn/bzgk/gb/std_list?p.p2=GB/T4458.1-2002",
+  "collected": null,
+  "replacement": true,
+  "pushed": true,
+  "pushed_date": "2026-08-26",
+  "ragflow_doc_ids": [
+    "48f6e431a0f811f187d67eb885516d10"
+  ]
+}
